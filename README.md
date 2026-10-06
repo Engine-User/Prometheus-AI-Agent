@@ -2,6 +2,8 @@
 
 # Prometheus Agent
 
+![Prometheus dashboard — Overview](Prometheus_Guide_images/dashboard-overview.png)
+
 Meet **Prometheus** — Your own a local-first personal assistant that shows the four pillars behind every
 serious agent: **Harness · Loop · Memory · Eval/LLM-Ops**. No frameworks hiding the good parts.
 
