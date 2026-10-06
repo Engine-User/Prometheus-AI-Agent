@@ -1,0 +1,117 @@
+# Getting started
+
+Five steps take you from nothing to a Prometheus that remembers you. Each step ends
+with a check, so you know it worked before you move on. Everything runs on your
+own machine.
+
+## 1. Install
+
+```bash
+pip install prometheus
+```
+
+To read or change the code, clone it instead:
+
+```bash
+git clone https://github.com/Engine-User/Prometheus-AI-Agent && cd Prometheus-AI-Agent
+uv venv && uv pip install -e .
+```
+
+### Other ways to run it
+
+In a checkout, `uv run prometheus …` needs no venv activation. Three ways to run it:
+
+| Command | When |
+|---|---|
+| `uv run prometheus dashboard` | quick start, zero activation (recommended) |
+| `source .venv/bin/activate` → `prometheus dashboard` | activate once, bare `prometheus` all session |
+| `uv tool install .` → `prometheus dashboard` | install `prometheus` **globally**, forever |
+
+**Check:** `prometheus connections` prints a list of integrations.
+
+## 2. Add one key
+
+```bash
+cp .env.example .env
+```
+
+Set `PROMETHEUS_PROVIDER=` and paste that provider's key. Anthropic is the default;
+OpenAI, Gemini, DeepSeek, MiniMax, Kimi, GLM, OpenRouter, OpenCode Zen and
+OpenCode Go work the same way. You can also paste a key in the dashboard
+later. Either way the key stays in a `.env` on your machine and is never sent
+to the browser.
+
+Prometheus reads a model key from three places, and the first one that has it wins:
+environment variables set before Prometheus starts, the `.env` in the folder you run
+Prometheus from (or the nearest folder above it), and `~/.prometheus/.env`. A key you paste
+in the dashboard goes to the folder's `.env` when there is one, and to
+`~/.prometheus/.env` when there is not, so Prometheus finds it from any folder. When Prometheus
+finds no key, the dashboard's "Set up Prometheus" page lists the paths it checked,
+and `prometheus connections` prints the same list under "Model key". A git worktree
+does not see the main checkout's `.env`: start Prometheus in the main checkout, or
+copy the key's line into `~/.prometheus/.env`.
+
+**Check:** run `prometheus` and say hi. It answers in the terminal.
+
+## 3. Open the dashboard
+
+```bash
+prometheus dashboard          # → http://localhost:7777
+```
+
+`prometheus` and `prometheus dashboard` are two doors into the **same** Prometheus. The dashboard
+is a small web server on your machine (`127.0.0.1`): the browser is the UI, and
+the same process runs every turn. Set `TELEGRAM_BOT_TOKEN` and it starts your
+Telegram bot too.
+
+**Check:** send a message from the chat dock and watch the Overview diagram
+light up as it flows through the harness.
+
+## 4. Watch it remember
+
+Say *"Remember that Alex prefers morning meetings."* Quit, and restart. Then
+say *"Book a catch-up with Alex on Friday."*
+
+**Check:** it books 9am, and **Memory ▸ Semantic** lists the fact. Your memory
+is one file: `~/.prometheus/state.db`, the same from every folder. Set `PROMETHEUS_HOME`
+to keep it somewhere else. If you ran Prometheus before v0.2, your memory is in the
+`.prometheus/` folder you ran it from, and Prometheus keeps using it there until you copy
+it: `mkdir -p ~/.prometheus && cp -R ./.prometheus/. ~/.prometheus/`.
+
+## 5. Share memory with your other agents (optional)
+
+[Prometheus Memory](https://www.waku.one) is a hosted memory that several agents
+share, so a fact saved in Claude Code can be recalled here, and the other way
+round.
+
+```bash
+pip install 'prometheus[mcp]'           # in a checkout: uv pip install -e '.[mcp]'
+prometheus connect waku-memory                # or /connect waku-memory in the dashboard chat
+prometheus skill export --to claude,codex     # optional: carry Prometheus's skills too
+```
+
+Your browser opens once to sign in. Restart Prometheus to load the `waku_memory_*`
+tools.
+
+**Check:** `prometheus mcp` names the account you signed in as, and
+`prometheus connections` lists Prometheus Memory as connected.
+
+To connect Claude Code, Codex, Hermes or Grok Bot to the same memory, see
+[integrations](integrations.md#share-one-memory-with-your-other-agents-waku-memory).
+
+Beside it, [treg](https://treg.to) gives Prometheus live data when it researches,
+on your own treg account:
+
+```bash
+prometheus connect treg                       # or /connect treg in the dashboard chat
+```
+
+**Check:** `prometheus connections` lists treg as connected, and so does the
+**Connections** page. More in
+[integrations](integrations.md#live-data-for-research-treg).
+
+## Next
+
+- [The tour](tour.md): the dashboard's tabs, things to try, and the loop up close.
+- [Integrations](integrations.md): voice, Telegram, calendars and MCP servers.
+- [Commands](commands.md): every `prometheus` and `make` command.

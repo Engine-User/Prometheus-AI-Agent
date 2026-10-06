@@ -1,0 +1,69 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+state.db
+traces/
+*.ics
+.DS_Store
+dist/
+.pytest_cache/
+.ruff_cache/
+# ANY agent home, default or alternate — the DIRECTORY, never a file list. The
+# home was renamed .prometheus -> .prometheus (prometheus/config.py: resolve_home), so
+# these patterns matched nothing and every home's SOUL.md, usage.jsonl and
+# outbox/ became committable. DISCORD_HOME gives the bot its own memory
+# (prometheus/gateway/discord.py) and PROMETHEUS_HOME can point it anywhere else,
+# so one glob has to cover every home, not just the default one.
+# Directory-level on purpose: test_runtime_data_is_ignored.py enumerates the
+# artifacts by hand, so listing files loses the day a new one appears. The
+# leading slash anchors it at the repo root, which is also what keeps this off
+# the prometheus/ package directory.
+/.prometheus*/
+.env.prerename-bak
+
+# Delegated coding deliverables (dated run folders + auto-run logs)
+prometheus_workspace/
+
+# Google OAuth: the client file you download from Cloud Console, and any token
+# it produces. Nothing here should ever be committed — belt and braces, because
+# the docs used to tell people to drop credentials.json in the repo root.
+credentials.json
+client_secret*.json
+*token*.json
+.gcp/
+
+# Disposable design mockups: propose, decide, implement, delete.
+docs/proposals/*.html
+
+# DeepEval writes a telemetry file here on every run
+.deepeval/
+
+# Local agent tooling. Only launch.json is machine-specific: it hardcodes
+# .venv/bin/python (a POSIX path) and an optional tracing extra, so it describes
+# the machine that wrote it and nothing else. .claude/skills/ is NOT ignored —
+# AGENTS.md and docs/context/maintainers.md send contributors there for the
+# new-tool and review-pr workflows.
+.claude/launch.json
+
+# built by lab/one-memory-every-agent/build_grok_plugin.py
+lab/one-memory-every-agent/grok-plugin/
+
+# board sources for videos stay private (conventions §6); commit PNG screenshots
+lab/**/*.excalidraw
+!lab/kimi-k3/**/*.excalidraw
+!lab/pi-agent/**/*.excalidraw
+
+# evals/hosted_docker/test_image.py plants waku/_c1_context_probe/ inside an
+# admitted build-context tree to prove the ignore files keep secrets out of the
+# image. Its files are NAMED like real secrets -- deploy.pem, deploy.key,
+# id_rsa, .aws/credentials -- and the fixture deletes them in a finally. This
+# line covers the run that is killed before the finally: without it, the next
+# `git add -A` stages two files called deploy.pem and deploy.key into a public
+# repository, and nobody reads that diff twice.
+#
+# The path must match CONTEXT_PROBE_DIR in evals/hosted_docker/test_image.py,
+# which the test compares against this rule, AND the tree must be one the tenant
+# allowlist admits (hosted/image/tenant.Dockerfile.dockerignore). Both still say
+# waku, so renaming this alone breaks the assertion.
+waku/_c1_context_probe/

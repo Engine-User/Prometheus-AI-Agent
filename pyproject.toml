@@ -1,0 +1,213 @@
+[project]
+name = "prometheus"
+# Single source of truth is prometheus/__init__.py — pyproject and the package
+# disagreed for four releases (0.1.4 here, 0.1.0 there) because nothing
+# forced them to match. Now there is only one number to bump.
+dynamic = ["version"]
+description = "A minimal, transparent, local-first Prometheus: harness + loop + memory + eval, in code you can read in an afternoon."
+readme = "README.md"
+authors = [{ name = "Engine-User" }]
+requires-python = ">=3.11"
+keywords = ["ai-agent", "llm", "agent-framework", "local-first", "llmops", "memory", "eval"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "anthropic>=0.40",   # anthropic wire format: Anthropic, Kimi, GLM, MiniMax
+    "openai>=1.50",      # openai wire format: OpenAI, Gemini, DeepSeek (and embeddings)
+    "python-dotenv>=1.0",
+    "rich>=13.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Engine-User/Prometheus-AI-Agent"
+Repository = "https://github.com/Engine-User/Prometheus-AI-Agent"
+Issues = "https://github.com/Engine-User/Prometheus-AI-Agent/issues"
+Changelog = "https://github.com/Engine-User/Prometheus-AI-Agent/releases"
+
+[project.scripts]
+# Branded CLI: `prometheus dashboard`, `prometheus voice`, `prometheus` to chat, etc.
+prometheus = "prometheus.__main__:main"
+
+[project.optional-dependencies]
+# Eval pillar: LLM-as-judge (deterministic evals need only pytest)
+eval = [
+    "pytest>=8.0",
+    "deepeval>=2.0",
+]
+# LLM-Ops pillar: local trace dashboard (traces also always land in traces/*.jsonl)
+tracing = [
+    "arize-phoenix>=7.0",
+    "opentelemetry-sdk>=1.27",
+    "opentelemetry-exporter-otlp>=1.27",
+]
+# Optional gateway: message your laptop from your phone
+telegram = [
+    "python-telegram-bot>=21.0",
+]
+# Optional write-through target for create_event; the local SQLite/ICS mock
+# remains the default and source of truth.
+gcal = [
+    "google-api-python-client>=2.0",
+    "google-auth>=2.0",
+    "google-auth-httplib2>=0.2",
+    "httplib2>=0.22",
+    # The browser consent flow. Without it the only way in is `gcloud auth
+    # application-default login`, which is a developer ritual, not a sign-in.
+    "google-auth-oauthlib>=1.0",
+]
+# Optional gateway: message Prometheus from Discord
+discord = [
+    "discord.py>=2.4",
+]
+# Optional gateway: WhatsApp via Meta Cloud API (needs a public URL — see docstring)
+whatsapp = [
+    "httpx>=0.25",
+]
+# Optional gateway: talk to your laptop. TTS uses macOS `say` by default;
+# for the neural British voice: pip install kokoro soundfile (pulls torch).
+voice = [
+    "faster-whisper>=1.0",
+    "sounddevice>=0.4",
+    # gateway/voice.py imports numpy directly (audio buffers). It happens to
+    # arrive with faster-whisper today, but depending on a transitive dep is a
+    # bug waiting for an upstream release — declare what we actually import.
+    "numpy>=1.24",
+]
+# The beautiful neural voice (Kokoro-82M, Apache-2.0): British butler, fully
+# local/offline. Heavier — pulls torch (~2GB). `uv pip install '.[voice-neural]'`
+# and Prometheus auto-detects it; no env var needed.
+voice-neural = [
+    "kokoro>=0.9",
+    "soundfile>=0.12",
+]
+# Optional semantic-memory upgrade path: Supabase pgvector (see launch-rag)
+supabase = [
+    "supabase>=2.0",
+]
+# The Memory arena: hosted memory backends raced against prometheus's own FTS5 store.
+# Never installed by default — the core is stdlib + anthropic/openai, and these
+# only exist so `make arena` can benchmark them.
+arena = [
+    "mem0ai>=2.0",
+    "zep-cloud>=2.0",
+    "langmem>=0.0.30",
+    "langgraph>=0.3",
+]
+# Optional episodic-memory backend: Notion database
+# Requires >=2.5: the adapter uses the data_sources API (Notion API 2025-09-03).
+notion = [
+    "notion-client>=2.5",
+]
+# Optional: connect MCP servers (.prometheus/mcp.json)
+# >=2.1: the Streamable HTTP transport is `streamable_http_client` and takes a
+# pre-built httpx client. 1.x spelled it `streamablehttp_client`, took headers
+# directly, and yielded a third element — so mcp_client.py's remote branch does
+# not work on 1.x at all, and an unpinned floor would fail at import time.
+mcp = [
+    "mcp>=2.1",
+]
+# Hosted prometheus (hosted/): the gateway, the metering proxy and the spawner.
+# The CODE is not on PyPI -- hosted/ ships in neither the wheel nor the sdist,
+# and comes from a git checkout (hosted/README.md). hosted/ carries its own
+# licence, Elastic License 2.0 (hosted/LICENSE), which is the other half of why
+# it must never ship: the package declares no licence expression of its own.
+# test_hosted_and_lab_never_ship_in_the_wheel_or_sdist is what keeps it out. This extra exists so that
+# a checkout can install the two libraries those services need, and so CI can
+# run their evals. `pip install prometheus[hosted]` from PyPI therefore
+# installs these two libraries and nothing else; that is accepted.
+hosted = [
+    "aiohttp>=3.9",
+    "PyJWT[crypto]>=2.8",
+]
+dev = [
+    "pytest>=8.0",
+    # Pinned EXACTLY: an unpinned linter means every ruff release can turn CI
+    # red with zero code changes (happened 2026-07-24 — 0.16.0 shipped new
+    # rules and 106 violations appeared overnight). Bump deliberately.
+    "ruff==0.16.0",
+    # Already the [build-system] backend below, fetched into an isolated
+    # build env on every `pip install` regardless. Declaring it here too
+    # makes it importable in THIS venv, so
+    # test_hosted_and_lab_never_ship_in_the_wheel_or_sdist can ask hatchling
+    # which files a build would include without running one (offline, no
+    # `uv` needed — task-B1-review.md, finding B1-F11).
+    # Pinned EXACTLY, same reasoning as ruff above: that test calls
+    # recurse_included_files, an internal, undocumented API, not part of
+    # hatchling's stable surface. An unpinned floor lets a routine hatchling
+    # release turn CI red with zero code change here. Re-verify the
+    # enumeration still matches a real build before bumping this pin.
+    "hatchling==1.32.4",
+]
+
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"
+
+# An sdist should be what you need to BUILD and TEST prometheus — source, bundled
+# skills, schema, evals. Left alone it was 2.6 MB, and 2.5 MB of that was a
+# whiteboard PNG and the .excalidraw sources, plus the agent tooling (.claude)
+# and the lab, which only matter inside this repo. All of it stays on GitHub,
+# where people actually read it; none of it belongs in a package download.
+[tool.hatch.version]
+path = "prometheus/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "docs", "examples",
+    # "/lab/**", not the bare "lab" this used to say: hatchling merges
+    # .gitignore's patterns with this list into one ordered pathspec, and
+    # .gitignore's own negated lines for lab/'s committed board diagrams
+    # (`!lab/kimi-k3/**/*.excalidraw`, `!lab/pi-agent/**/*.excalidraw`)
+    # survived a bare "lab" -- only a pattern naming the directory's
+    # CONTENTS reliably re-excludes what an earlier negation un-ignored.
+    # test_hosted_and_lab_never_ship_in_the_wheel_or_sdist caught this by
+    # building the sdist and looking (task-B1-review.md, finding B1-F1).
+    "/lab/**", "scripts/whiteboard",
+    ".claude", ".deepeval", ".github",
+    # Anchored at the repo root on purpose: an unanchored "hosted" would also
+    # drop evals/deterministic/hosted/, and a test run from the sdist would
+    # then fail on a missing directory instead of skipping it.
+    "/hosted",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["prometheus"]
+
+# The bundled skills live at the repo root because that is where contributors
+# add them (CI's validate-skills job, `skills/community/`).
+# But `packages = ["prometheus"]` ships only the package, so before 2026-07-31 a
+# `pip install prometheus` arrived with ZERO skills — procedural memory, one of
+# the four pillars, silently absent while the dashboard shipped fine (it lives
+# under prometheus/ops/static). Copying them in at build time keeps one contributor-
+# facing location and still ships them; prometheus.memory.bundled_skill_dirs() looks
+# in both places and explains why.
+[tool.hatch.build.targets.wheel.force-include]
+"skills" = "prometheus/skills"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+# Rules prometheus IGNORES on purpose — each is a deliberate style choice, not an
+# oversight. If you're tempted to remove one, read the reason first:
+ignore = [
+    "BLE001",  # blind `except Exception` is the documented pattern: tools and
+               # observers surface errors as text instead of crashing the loop
+    "DTZ001", "DTZ005", "DTZ011",  # naive local datetimes are intentional —
+               # daily trace files and workspace folders are named in the
+               # user's local day, not UTC
+    "S110",    # try/except/pass around optional integrations (OTel, extras)
+    # RUF100 flags a `# noqa` for a rule that is no longer enabled. Because the
+    # rules above are globally ignored, ANY `# noqa: BLE001` a contributor
+    # writes — the natural, correct-looking thing to write next to a broad
+    # `except Exception` — becomes a CI failure in a file they never touched.
+    # That footgun blocked two community PRs (#14, #26) on 2026-07-26. Turning
+    # RUF100 off costs us the ability to spot genuinely stale noqas; leaving it
+    # on costs contributors a red CI they can't explain. Contributors win.
+    "RUF100",
+]
