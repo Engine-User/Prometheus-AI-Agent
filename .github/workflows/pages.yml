@@ -1,0 +1,84 @@
+name: pages
+
+on:
+  push:
+    branches: [main]
+    # Only the site triggers a deploy. A change to the Python package must not
+    # spend CI minutes re-uploading bytes that did not change, and a deployment
+    # that publishes identical output is a deployment nobody can trust to mean
+    # "the site changed".
+    paths:
+      - "localclawagent/**"
+      - ".github/workflows/pages.yml"
+  # Lets a deploy be re-run without an empty commit when the Pages build fails
+  # for a reason that needs no source change.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time, and never cancel one mid-flight: a cancelled deploy
+# can leave the live site pointing at a half-published artifact.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - name: Stage the site
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+          # Copy the CONTENTS of localclawagent/, not the folder, so index.html
+          # sits at the artifact root. Copying the folder would publish the
+          # site one level down and every relative asset path would 404.
+          cp -r localclawagent/. _site/
+          # tools/ is a development aid -- probe.mjs drives a local headless
+          # Chrome to find elements escaping the viewport. It is not site
+          # content, and it names a machine-specific Chrome path.
+          rm -rf _site/tools
+          # Pages serves the artifact as static files, but an underscore-
+          # prefixed directory would still be eligible for Jekyll processing if
+          # the deployment mode ever changes. This file opts out for good.
+          touch _site/.nojekyll
+          echo "--- publishing ---"
+          find _site -type f | sort
+          echo -n "index.html present: "
+          test -s _site/index.html && echo yes
+
+      - name: Every referenced asset must exist
+        # A static site has no build step to catch a typo in an href, so the
+        # failure mode is a 404 that only a human clicking the page would see.
+        # This is the smallest check that turns that into a red CI run instead:
+        # every local src/href in the markup has to resolve to a real file.
+        run: |
+          set -euo pipefail
+          missing=0
+          while IFS= read -r ref; do
+            case "$ref" in
+              http*|mailto:*|\#*|"") continue ;;
+            esac
+            path="_site/${ref%%#*}"
+            if [ ! -e "$path" ]; then
+              echo "::error::missing asset: $ref (wanted _site/$path)"
+              missing=1
+            fi
+          done < <(grep -oE '(src|href)="[^"]+"' _site/index.html \
+                   | sed -E 's/^(src|href)="//; s/"$//' | sort -u)
+          [ "$missing" -eq 0 ] || exit 1
+          echo "all local references resolve"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - uses: actions/deploy-pages@v4

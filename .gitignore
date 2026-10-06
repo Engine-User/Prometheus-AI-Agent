@@ -67,3 +67,9 @@ lab/**/*.excalidraw
 # allowlist admits (hosted/image/tenant.Dockerfile.dockerignore). Both still say
 # waku, so renaming this alone breaks the assertion.
 waku/_c1_context_probe/
+
+# The Word file the UI guide was generated FROM. It is 4 MB of screenshots that
+# already live in the repo as Prometheus_Guide_images/*.png, so committing it
+# doubles the image payload for nothing, and it is a source document rather
+# than source code. Only the generated Markdown belongs here.
+Prometheus_screenshots.docx
