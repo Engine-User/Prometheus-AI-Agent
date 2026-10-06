@@ -1,0 +1,670 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   THE RIG — a robotic android built entirely from CSS 3D transforms.
+
+   WHAT THIS IS NOT
+   It is not a stack of rotated rectangles with a glow in front of them, and
+   the difference is worth stating because that is the failure mode every CSS
+   3D scene falls into. Three things are doing the work here and each one has a
+   name:
+
+     1. VOLUME.   Every plate has a partner rotated ~72-78deg about Y. A head
+                  with two cheeks at 72deg and a crown at 62deg reads as a solid
+                  with a silhouette from any angle. A head with only a front
+                  plate reads as a decal, however good its gradient is.
+
+     2. LIGHTING. CSS has no key light, so the lighting is rigged by hand: a
+                  --lit multiplier per plate, set by where that plate faces.
+                  The key is up, front and to the LEFT, so the crown is the
+                  brightest thing on the figure (1.14), the left cheek is lit
+                  (1.08), and the right cheek is turned away from it (0.82).
+                  This is the whole trick. A gradient alone cannot tell you
+                  which way a surface faces; a brightness step can, and eight
+                  of them placed by hand is what makes 17 divs read as a body.
+
+     3. SPECULAR. --material-lip is one hairline of light along the top edge of
+                  every plate. It is 1px and it is the difference between a
+                  gradient and a plate with a thickness.
+
+   GEOMETRY LIVES IN --x/--y/--z/--rx/--ry/--rz AND NOWHERE ELSE
+   One rule composes the transform from six custom properties, so a plate's
+   modifier below is a single line of numbers and no plate writes a transform
+   of its own. Adding an eighth finger to the hand is then one line here, not
+   a transform string repeated in three places.
+
+   GOTCHA, and it will bite anyone who edits this file:
+   filter, opacity < 1, overflow: hidden, mask and clip-path ALL flatten a
+   preserve-3d subtree. Put any of them on .rig or .rig__body and every plate
+   below silently collapses onto the same plane and the whole thing becomes
+   flat again with no error to tell you. The rig therefore carries only
+   transform and will-change. The glow is inset box-shadow (which does not
+   flatten) rather than a filter.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.rig {
+  --lit: 1;
+  position: relative;
+  width: 420px;
+  height: 588px;
+  transform-style: preserve-3d;
+  transform: translateZ(var(--lift, 0px)) rotateX(var(--tilt-x, 0deg))
+    rotateY(var(--tilt-y, 0deg));
+  transition: transform var(--motion-base) var(--motion-ease);
+  will-change: transform;
+}
+
+.rig__body {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  /* The idle breath: 4mm of rise and a degree of pitch over 7.5s. Slow on
+     purpose — see tokens.css --motion-idle. */
+  animation: breathe var(--motion-idle) var(--motion-ease) infinite alternate;
+}
+
+@keyframes breathe {
+  from {
+    transform: translate3d(0, 6px, 0) rotateX(-0.5deg);
+  }
+  to {
+    transform: translate3d(0, -6px, 0) rotateX(0.5deg);
+  }
+}
+
+/* ── the plate ───────────────────────────────────────────────────────────────
+   Every plate is one of these. The transform is composed once, here, from the
+   six geometry properties; the size comes from --w/--h so the box itself can
+   be authored by the modifier. */
+.plate {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--w, 100px);
+  height: var(--h, 100px);
+  transform-style: preserve-3d;
+  transform: translate3d(calc(var(--x, 0) - 50%), calc(var(--y, 0) - 50%), var(--z, 0))
+    rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) rotateZ(var(--rz, 0deg));
+  background: var(--material-metal);
+  box-shadow: var(--material-lip), var(--material-occlude), var(--emissive-rest);
+  filter: brightness(var(--lit, 1));
+  border-radius: var(--radius);
+}
+
+/* A plate with a visible edge rather than a shaded face: the chamfer, the
+   spine, the shoulder cap. Same material, one hairline of hard light along the
+   lit edge. */
+.plate--edge {
+  background: linear-gradient(
+      var(--rz, 0deg),
+      color-mix(in srgb, var(--text-ink) 14%, transparent) 0%,
+      transparent 38%
+    ),
+    var(--material-metal);
+}
+
+/* ── geometry · cranium ─────────────────────────────────────────────────────── */
+/* The head is TALLER than it is wide (168 x 206), not square. The first pass
+   was 190 x 200 and the head read as a monitor: the brow, the visor and the jaw
+   were three horizontal bands of nearly equal width stacked on each other, and
+   a stack of equal-width bands is a letterbox, not a face. Narrowing to 168 and
+   pulling the brow in to 176 is what lets the visor at 132 read as an eye
+   socket — a wide letterbox slit in a square box cannot be read as an eye at
+   any brightness. */
+.p-cranium {
+  --x: 0px;
+  --y: -164px;
+  --z: 34px;
+  --w: 168px;
+  --h: 206px;
+  --lit: 1;
+}
+
+/* The crown. rx 56 rather than 62 and 104 tall rather than 116: at 62deg the
+   plate projected to 54px of visible height and sat so far back that it merged
+   with the brow into one dark trapezoid. At 56 with --lit 1.24 — the brightest
+   value on the figure, because a dome is the surface most of the key light
+   reaches — it separates and reads as the top of a head. */
+/* 52deg instead of 56, and 172 wide instead of 166 — slightly WIDER than the
+   168px cranium it caps. A narrower crown sits inside the skull's silhouette
+   and reads as a lid resting on top; an overhanging one reads as the top of a
+   head, because that is what a cranium does. */
+.p-crown {
+  --x: 0px;
+  --y: -250px;
+  --z: 16px;
+  --w: 172px;
+  --h: 104px;
+  --rx: 52deg;
+  --lit: 1.24;
+  border-radius: 50% 50% var(--radius) var(--radius) / 44% 44% var(--radius) var(--radius);
+}
+
+/* The skull sides. 64deg instead of 74: at 74 they were nearly edge-on and
+   showed only as two pale tabs outside the cranium, reading as ears on a box.
+   At 64 each one presents a real cheek plane to the key light, and pulling
+   them to x=88 tucks them inside the cranium's 95 so they add a shaded
+   return rather than a protrusion. */
+.p-skull-l {
+  --x: -80px;
+  --y: -164px;
+  --z: 4px;
+  --w: 68px;
+  --h: 190px;
+  --ry: 64deg;
+  --lit: 1.14;
+}
+
+.p-skull-r {
+  --x: 80px;
+  --y: -164px;
+  --z: 4px;
+  --w: 68px;
+  --h: 190px;
+  --ry: -64deg;
+  --lit: 0.72;
+}
+
+/* The brow. It exists for one reason: to overhang the visor, so the visor sits
+   in its shadow. Remove it and the eye stops being a recess and becomes a
+   sticker. */
+.p-brow {
+  --x: 0px;
+  --y: -206px;
+  --z: 56px;
+  --w: 176px;
+  --h: 40px;
+  --rx: -14deg;
+  --lit: 1.1;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+/* ── geometry · visor ─────────────────────────────────────────────────────────
+   Dark glass, one emissive slit, one sweep. The slit is the machine's eye and
+   the only thing on this figure that is a light source rather than a surface. */
+.p-visor {
+  --x: 0px;
+  --y: -170px;
+  --z: 58px;
+  --w: 132px;
+  --h: 54px;
+  --rx: -6deg;
+  --lit: 1;
+  background: linear-gradient(
+    180deg,
+    #05070a 0%,
+    #0b1116 46%,
+    #04080b 100%
+  );
+  box-shadow: var(--material-lip), inset 0 -8px 18px -10px rgb(0 0 0 / 0.9),
+    var(--emissive-live);
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+
+.p-visor::before {
+  /* The lit band across the eye. Two stops, a hot core inside a wider halo —
+     an additive-looking falloff built from an ordinary gradient, because an
+     actual additive blend would need a canvas behind every plate. */
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 50%;
+  height: 3px;
+  translate: 0 -50%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent) 55%, transparent) 18%,
+    var(--accent-hover) 50%,
+    color-mix(in srgb, var(--accent) 55%, transparent) 82%,
+    transparent 100%
+  );
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 70%, transparent),
+    0 0 26px color-mix(in srgb, var(--accent) 40%, transparent);
+  opacity: 0.92;
+}
+
+.p-visor::after {
+  /* The scan. A single hairline travelling the width of the visor every 3.2s.
+     It is the figure's one autonomous behaviour and it says "scanning" without
+     a word of copy. */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 38%,
+    color-mix(in srgb, var(--accent) 30%, transparent) 50%,
+    transparent 62%
+  );
+  translate: -140% 0;
+  animation: sweep 3.2s var(--motion-ease) infinite;
+}
+
+@keyframes sweep {
+  0%,
+  62% {
+    translate: -140% 0;
+  }
+  100% {
+    translate: 140% 0;
+  }
+}
+
+/* ── geometry · cheeks and jaw ──────────────────────────────────────────────── */
+.p-cheek-l {
+  --x: -58px;
+  --y: -116px;
+  --z: 50px;
+  --w: 60px;
+  --h: 100px;
+  --ry: 38deg;
+  --rz: 5deg;
+  --lit: 1.12;
+  border-radius: 0 0 0 var(--radius);
+}
+
+.p-cheek-r {
+  --x: 58px;
+  --y: -116px;
+  --z: 50px;
+  --w: 60px;
+  --h: 100px;
+  --ry: -38deg;
+  --rz: -5deg;
+  --lit: 0.78;
+  border-radius: 0 0 var(--radius) 0;
+}
+
+/* The chin projects forward and down, which is what stops the lower face
+   reading as the same plane as the forehead. 84 tall and lifted to -106 so it
+   clears the cheeks it sits between — at -92 with h 76 it was entirely
+   enclosed by them and never showed. */
+.p-jaw {
+  --x: 0px;
+  --y: -104px;
+  --z: 64px;
+  --w: 124px;
+  --h: 84px;
+  --rx: 27deg;
+  --lit: 1;
+  border-radius: 0 0 var(--radius) var(--radius) / 0 0 42% 42%;
+}
+
+/* The jaw vent: three emissive slots, the machine's intake. */
+.p-jaw::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  width: 74px;
+  height: 3px;
+  translate: -50% 0;
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 60%, transparent) 0 12px,
+    transparent 12px 22px
+  );
+  opacity: 0.55;
+}
+
+.p-hinge-l,
+.p-hinge-r {
+  --x: 66px;
+  --y: -122px;
+  --z: 44px;
+  --w: 20px;
+  --h: 44px;
+  --ry: 62deg;
+  --lit: 0.92;
+  border-radius: var(--shape-circle);
+}
+
+.p-hinge-r {
+  --x: -66px;
+  --ry: -62deg;
+  --lit: 1.04;
+}
+
+/* ── geometry · neck ──────────────────────────────────────────────────────────
+   Three stacked rings rather than one column. A single cylinder is a box; three
+   rings with gaps between them is a joint, and a joint says machine.
+
+   Lifted to -52/-36/-20 with h 16 (they were 20 tall at -58/-40/-22) because
+   at the old spacing the bottom ring sat entirely under the clavicle and none
+   of the neck was visible at any angle — the head appeared to sit straight on
+   the chest, with no joint at all between them. */
+.p-neck {
+  --x: 0px;
+  --z: 16px;
+  --w: 78px;
+  --h: 16px;
+  --y: -52px;
+  --lit: 0.9;
+  border-radius: var(--shape-circle);
+}
+
+.p-neck--2 {
+  --y: -36px;
+  --z: 24px;
+  --lit: 0.96;
+}
+
+.p-neck--3 {
+  --y: -20px;
+  --z: 32px;
+  --lit: 1.02;
+}
+
+/* ── geometry · torso ───────────────────────────────────────────────────────── */
+/* The shoulder line was 388px across against a 244px chest — the caps sat 72px
+   clear of the torso on each side and read as wings rather than as shoulders.
+   288 and ±132 puts them at the chest's edge, which is where a shoulder is. */
+.p-clavicle {
+  --x: 0px;
+  --y: 6px;
+  --z: 10px;
+  --w: 288px;
+  --h: 50px;
+  --rx: 22deg;
+  --lit: 1.06;
+  border-radius: var(--radius) var(--radius) 40% 40% / var(--radius) var(--radius) 24% 24%;
+}
+
+.p-shoulder-l {
+  --x: -132px;
+  --y: 20px;
+  --z: -4px;
+  --w: 92px;
+  --h: 92px;
+  --ry: 58deg;
+  --rz: -6deg;
+  --lit: 1.08;
+  border-radius: 46% 46% var(--radius) var(--radius) / 42% 42% var(--radius) var(--radius);
+}
+
+.p-shoulder-r {
+  --x: 132px;
+  --y: 20px;
+  --z: -4px;
+  --w: 92px;
+  --h: 92px;
+  --ry: -58deg;
+  --rz: 6deg;
+  --lit: 0.76;
+  border-radius: 46% 46% var(--radius) var(--radius) / 42% 42% var(--radius) var(--radius);
+}
+
+.p-chest {
+  --x: 0px;
+  --y: 106px;
+  --z: 26px;
+  --w: 244px;
+  --h: 196px;
+  --rx: 7deg;
+  --lit: 1.02;
+  border-radius: var(--radius) var(--radius) 34% 34% / var(--radius) var(--radius) 18% 18%;
+}
+
+.p-rib-l {
+  --x: -126px;
+  --y: 106px;
+  --z: 10px;
+  --w: 44px;
+  --h: 196px;
+  --ry: 80deg;
+  --lit: 1.06;
+}
+
+.p-rib-r {
+  --x: 126px;
+  --y: 106px;
+  --z: 10px;
+  --w: 44px;
+  --h: 196px;
+  --ry: -80deg;
+  --lit: 0.79;
+}
+
+.p-abdomen {
+  --x: 0px;
+  --y: 226px;
+  --z: 12px;
+  --w: 196px;
+  --h: 104px;
+  --rx: 17deg;
+  --lit: 0.88;
+  border-radius: var(--radius);
+}
+
+/* THE PLINTH
+   The bust used to simply stop: the abdomen's bottom edge was a hard
+   horizontal line with nothing under it, so the figure read as a cropped
+   screenshot rather than as an object. A base plate is how a bust is actually
+   mounted, and it also closes the bottom of the silhouette with a shape that
+   belongs to the same material as everything above it.
+
+   rx 62 lays it almost flat — a floor plate seen from slightly above — which
+   is the only way a 300px-wide element reads as a horizontal surface rather
+   than as another wall. */
+.p-plinth {
+  --x: 0px;
+  --y: 272px;
+  --z: 2px;
+  --w: 300px;
+  --h: 74px;
+  --rx: 62deg;
+  --lit: 1.02;
+  border-radius: var(--radius);
+}
+
+/* The sternum seam: a single emissive hairline running the full height of the
+   chest, split at the core. It is the seam a real machine would be assembled
+   along and it is what makes the two chest plates read as one object. */
+.p-sternum {
+  --x: 0px;
+  --y: 178px;
+  --z: 40px;
+  --w: 2px;
+  --h: 108px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent) 50%, transparent) 40%,
+    color-mix(in srgb, var(--accent) 50%, transparent) 60%,
+    transparent 100%
+  );
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* ── the core · this is state.db ──────────────────────────────────────────────
+   A recessed port: an outer ring unlit, an inner disc that ignites when a
+   packet lands in it, and a slow pulse between. It is the one place on the
+   figure where light is a state rather than a finish, which is why it is
+   separated out of .plate — it animates its own intensity and must not carry
+   the material metal. */
+.p-core {
+  --x: 0px;
+  --y: 88px;
+  --z: 56px;
+  --w: 96px;
+  --h: 96px;
+  background: radial-gradient(
+    circle at 50% 42%,
+    #0b1418 0%,
+    #05090c 58%,
+    #020406 100%
+  );
+  box-shadow: var(--material-lip), var(--emissive-rest);
+  border-radius: var(--shape-circle);
+  display: grid;
+  place-items: center;
+}
+
+.p-core::before {
+  /* The iris. Its box-shadow is STATIC and only its opacity animates.
+
+     This used to animate box-shadow between --emissive-rest and
+     --emissive-live, which repaints the plate on every one of the 150 frames
+     per 2.4s cycle — on the one element that is already compositing 22 other
+     ones. Opacity is a compositor-only property, so the same visible breathing
+     costs a transform on the GPU instead of a repaint on the CPU. The lit
+     intensity is now carried by a fixed --emissive-live and the PULSE is the
+     opacity, which is also a truer read: a light source breathing, rather than
+     a border redrawing itself. */
+  content: "";
+  width: 54px;
+  height: 54px;
+  border-radius: var(--shape-circle);
+  box-shadow: var(--emissive-live);
+  background: radial-gradient(
+    circle at 50% 38%,
+    color-mix(in srgb, var(--accent) 34%, transparent) 0%,
+    transparent 70%
+  );
+  animation: core-breathe 2.4s var(--motion-ease) infinite alternate;
+}
+
+@keyframes core-breathe {
+  from {
+    opacity: 0.68;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.p-core::after {
+  /* The gate ring — four ticks around the port. A gauge face, so it reads as an
+     instrument rather than as a lightbulb. */
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: var(--shape-circle);
+  background: conic-gradient(
+    from 0deg,
+    color-mix(in srgb, var(--accent) 70%, transparent) 0deg 3deg,
+    transparent 3deg 87deg,
+    color-mix(in srgb, var(--accent) 70%, transparent) 87deg 90deg,
+    transparent 90deg 177deg,
+    color-mix(in srgb, var(--accent) 70%, transparent) 177deg 180deg,
+    transparent 180deg 267deg,
+    color-mix(in srgb, var(--accent) 70%, transparent) 267deg 270deg,
+    transparent 270deg 360deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent 0 68%, #000 69%);
+  mask: radial-gradient(circle, transparent 0 68%, #000 69%);
+  opacity: 0.8;
+}
+
+/* ── reactivity ──────────────────────────────────────────────────────────────
+   Four states, escalating: idle breath, pointer over the stage, pointer
+   down (a write landing in the port), and the .is-live flag the packets script
+   sets once traffic is actually reaching the core.
+
+   The hover selectors are on .stage, not on .rig. The rig is 420px of moving
+   parts and a visitor aiming at it will miss; the stage is the whole 500x590
+   box including the empty air around the figure, so the response is generous
+   and starts before the pointer reaches the shoulder.
+
+   .is-hit is added by the pointerdown handler and removed on animationend, so
+   a rapid second tap restarts the keyframes instead of being ignored the way a
+   re-triggered class toggle would be. */
+.stage:hover .p-core::before,
+.stage:focus-within .p-core::before {
+  box-shadow: var(--emissive-hot);
+  animation-duration: 1.1s;
+}
+
+.stage:hover .rig {
+  --lift: var(--depth-exit);
+}
+
+.stage:hover .p-jaw::after {
+  opacity: 0.9;
+}
+
+/* A write landing: the port pops, and the packets script fires a burst into it
+   at the same time. `scale` is compositor-only, so this is free on a surface
+   that is already animating. */
+.rig.is-hit .p-core {
+  animation: hit-pop 520ms var(--motion-ease);
+}
+
+.rig.is-hit .p-core::before {
+  animation-duration: 0.42s;
+}
+
+@keyframes hit-pop {
+  0% {
+    scale: 1;
+  }
+  22% {
+    scale: 1.16;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+.rig.is-live .p-core::before {
+  box-shadow: var(--emissive-hot);
+  animation-duration: 1.5s;
+}
+
+/* ── contact shadow ───────────────────────────────────────────────────────────
+   The dark the figure drops onto the floor. It is the one non-inset shadow on
+   the page and it exists because the rig has no bottom: without it the bust
+   ends in mid-air and the floor grid behind it becomes a backdrop instead of a
+   ground. */
+.rig__shadow {
+  position: absolute;
+  left: 50%;
+  top: 322px;
+  width: 300px;
+  height: 40px;
+  translate: -50% 0;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    rgb(0 0 0 / 0.86) 0%,
+    rgb(0 0 0 / 0.42) 46%,
+    transparent 72%
+  );
+  filter: blur(8px);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* ── states ───────────────────────────────────────────────────────────────────
+   Hover is driven from .stage:hover above so the hit area is the whole stage
+   rather than the 420px rig box. focus-within stays on the rig so keyboard
+   focus on anything inside it still produces the same response. */
+.rig:hover,
+.rig:focus-within {
+  --lift: var(--depth-exit);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rig__body,
+  .p-visor::after,
+  .p-core::before {
+    animation: none;
+  }
+
+  .rig__body {
+    transform: none;
+  }
+
+  /* The write response is a scale pop. Reduced motion does not get to keep the
+     colour change and drop the movement — it gets the state the movement was
+     heading for, which is the lit port. */
+  .rig.is-hit .p-core {
+    animation: none;
+  }
+
+  .rig.is-hit .p-core::before {
+    animation: none;
+    opacity: 1;
+    box-shadow: var(--emissive-hot);
+  }
+}

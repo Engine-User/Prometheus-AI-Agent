@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prometheus Agent — a local-first personal assistant you can read end to end</title>
+  <meta name="description"
+    content="Prometheus is a local-first personal assistant built on four pillars — Harness, Loop, Memory, Eval/LLM-Ops. Your memory is one SQLite file. Open it, read it, it's yours.">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0a0a0b">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Prometheus Agent">
+  <meta property="og:description"
+    content="A local-first personal assistant with the good parts showing. The loop is ~95 lines of plain Python. Your memory is one SQLite file.">
+  <meta property="og:url" content="https://engine-user.github.io/Prometheus-AI-Agent/">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/prometheus-mark-32.png">
+  <link rel="apple-touch-icon" href="assets/prometheus-mark-64.png">
+
+  <link rel="preload" href="assets/fonts/InstrumentSans-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/JetBrainsMono-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/chrome.css">
+  <link rel="stylesheet" href="css/hero.css">
+  <link rel="stylesheet" href="css/android.css">
+  <link rel="stylesheet" href="css/sections.css">
+  <script>document.documentElement.classList.add("js");</script>
+</head>
+
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="masthead">
+    <div class="shell masthead__inner">
+      <a class="brand" href="#top">
+        <img src="assets/prometheus-mark-64.png" alt="" width="26" height="26">
+        <span>
+          <span class="brand__name">Prometheus</span>
+          <span class="brand__sub">Agent</span>
+        </span>
+      </a>
+      <nav class="masthead__nav" aria-label="Primary">
+        <a href="#pillars" data-optional>Pillars</a>
+        <a href="#install">Install</a>
+        <a href="https://github.com/Engine-User/Prometheus-AI-Agent" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ── HERO ──────────────────────────────────────────────────────────── -->
+    <section class="hero" id="top">
+      <div class="shell hero__grid">
+
+        <div class="hero__copy">
+          <div class="hero__mark">
+            <img src="assets/prometheus-mark-64.png" alt="" width="32" height="32">
+            <span class="label">Local, Secure & Intelligent</span>
+          </div>
+
+          <h1 class="hero__title">
+            <span class="ln">Your agent,</span>
+            <span class="ln">ready in <b class="tick">~95 lines</b></span>
+            <span class="ln">of Python.</span>
+            <span class="ln stamp">Ready for the Agentic?</span>
+          </h1>
+
+          <p class="lead hero__lead">
+            Prometheus is built on four pillars — <strong>Harness</strong>,
+            <strong>Loop</strong>, <strong>Memory</strong>, <strong>Eval/LLM-Ops</strong> —
+            with no frameworks hiding the good parts. Your memory is one SQLite file.
+            Open it. Analyse it. It's yours.
+          </p>
+
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#install">Install it</a>
+            <a class="btn btn--ghost" href="https://github.com/Engine-User/Prometheus-AI-Agent" rel="noopener">
+              Read the code
+            </a>
+          </div>
+
+          <button class="install" type="button" data-copy="pip install prometheus">
+            <span class="install__prompt" aria-hidden="true">$</span>
+            <code>pip install prometheus</code>
+            <span class="install__state" data-copy-state>copy</span>
+          </button>
+        </div>
+
+        <!-- ── the stage ────────────────────────────────────────────────── -->
+        <div class="stage">
+          <div class="stage__horizon" aria-hidden="true"></div>
+          <div class="stage__floor" aria-hidden="true"></div>
+
+          <div class="stage__rig">
+            <!--
+            THE RIG. 23 plates, each positioned by six custom properties that
+            css/android.css composes into one transform. Drawn back to front.
+            Decorative only: the figure is aria-hidden and every fact it
+            carries is also present as text in the callouts below and in the
+            four pillar cards further down the page. Nothing here is the only
+            place a piece of information exists.
+          -->
+            <div class="rig" data-rig aria-hidden="true">
+              <div class="rig__body">
+
+                <i class="plate p-crown"></i>
+                <i class="plate p-skull-r"></i>
+                <i class="plate p-skull-l"></i>
+                <i class="plate plate--edge p-cranium"></i>
+
+                <i class="plate p-rib-r"></i>
+                <i class="plate p-rib-l"></i>
+                <i class="plate p-clavicle"></i>
+                <i class="plate p-shoulder-r"></i>
+                <i class="plate p-shoulder-l"></i>
+                <i class="plate p-chest"></i>
+                <i class="plate p-abdomen"></i>
+                <i class="plate p-plinth"></i>
+                <i class="plate p-sternum"></i>
+                <i class="plate p-core"></i>
+
+                <i class="plate p-neck"></i>
+                <i class="plate p-neck p-neck--2"></i>
+                <i class="plate p-neck p-neck--3"></i>
+
+                <i class="plate p-jaw"></i>
+                <i class="plate p-hinge-r"></i>
+                <i class="plate p-hinge-l"></i>
+                <i class="plate p-cheek-r"></i>
+                <i class="plate p-cheek-l"></i>
+                <i class="plate p-brow"></i>
+                <i class="plate p-visor"></i>
+
+                <i class="rig__shadow"></i>
+              </div>
+            </div>
+          </div>
+
+          <canvas class="stage__packets" data-packets aria-hidden="true"></canvas>
+
+          <p class="callout callout--watch"><span>watch it think</span></p>
+          <p class="callout callout--loop"><span>loop</span> <b>~95 lines</b></p>
+          <p class="callout callout--core"><span>memory</span> <b>state.db</b></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PILLARS ──────────────────────────────────────────────────────── -->
+    <section class="section section--rule" id="pillars">
+      <div class="shell">
+        <p class="eyebrow label">Four pillars</p>
+        <h2 class="h2">Nothing is hidden behind a framework.</h2>
+        <p class="prose" style="margin-top:var(--space-4); margin-bottom:var(--space-8)">
+          These are the four boxes the whole project is drawn as. Each one is a
+          directory you can open, not a feature on a pricing page.
+        </p>
+
+        <div class="pillars" data-reveal>
+          <article class="pillar">
+            <div class="pillar__viz viz-harness" aria-hidden="true">
+              <i class="viz-harness__node"></i>
+              <i class="viz-harness__node"></i>
+              <i class="viz-harness__node"></i>
+              <i class="viz-harness__node"></i>
+              <i class="viz-harness__ring"></i>
+            </div>
+            <h3 class="pillar__h h3">Harness</h3>
+            <p class="pillar__p">
+              Gateways — terminal, dashboard, voice, Telegram, Discord, WhatsApp —
+              and the tools around one loop.
+            </p>
+          </article>
+
+          <article class="pillar">
+            <div class="pillar__viz viz-loop" aria-hidden="true">
+              <div class="viz-loop__track">
+                <span class="viz-loop__stop viz-loop__stop--a">reason</span>
+                <span class="viz-loop__stop viz-loop__stop--b">act</span>
+                <span class="viz-loop__stop viz-loop__stop--c">repeat</span>
+                <span class="viz-loop__core">loop</span>
+              </div>
+            </div>
+            <h3 class="pillar__h h3">Loop</h3>
+            <p class="pillar__p">
+              ~95 lines of plain Python: reason, act, repeat, with two ways to stop.
+              Step through it.
+            </p>
+          </article>
+
+          <article class="pillar">
+            <div class="pillar__viz viz-memory" aria-hidden="true">
+              <span class="viz-memory__file">~/.prometheus/state.db</span>
+              <span class="viz-memory__bar"><i></i><i></i><i></i></span>
+              <span class="viz-memory__key">
+                <span>semantic</span><span>episodic</span><span>skills</span>
+              </span>
+            </div>
+            <h3 class="pillar__h h3">Memory</h3>
+            <p class="pillar__p">
+              Semantic, episodic and procedural. A gate decides <em>whether</em> to
+              remember; consolidation decides <em>what</em> to keep.
+            </p>
+          </article>
+
+          <article class="pillar">
+            <div class="pillar__viz viz-eval" aria-hidden="true">
+              <span class="viz-eval__meter"><span class="viz-eval__fill"></span></span>
+              <span class="viz-eval__key"><span>deterministic</span><span>judge</span></span>
+            </div>
+            <h3 class="pillar__h h3">Eval / LLM-Ops</h3>
+            <p class="pillar__p">
+              Deterministic tests and LLM-as-judge, side by side, with a release
+              gate and a trace for every turn.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── INSTALL ──────────────────────────────────────────────────────── -->
+    <section class="section section--rule" id="install">
+      <div class="shell">
+        <p class="eyebrow label">Get it running</p>
+        <h2 class="h2">Two ways in.</h2>
+        <p class="prose" style="margin-top:var(--space-4); margin-bottom:var(--space-8)">
+          Just want to run it, install from pip. Want to read the code — which is
+          the point of this repo — clone it instead. Every block below is
+          copy-pasteable.
+        </p>
+
+        <h3 class="label label--accent" style="margin-bottom:var(--space-4)">Just run it</h3>
+        <div class="steps" data-reveal>
+          <div class="step">
+            <div class="step__head">
+              <span class="step__n">01</span>
+              <span class="step__what">install</span>
+              <button class="btn btn--ghost" type="button" data-copy="pip install prometheus">Copy</button>
+            </div>
+            <div class="step__code">
+              <pre><code>pip install prometheus</code></pre>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__head">
+              <span class="step__n">02</span>
+              <span class="step__what">talk to it in the terminal</span>
+              <button class="btn btn--ghost" type="button" data-copy="prometheus">Copy</button>
+            </div>
+            <div class="step__code">
+              <pre><code><span class="m"># your first run tells you which key to set</span>
+prometheus</code></pre>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__head">
+              <span class="step__n">03</span>
+              <span class="step__what">or open the browser cockpit</span>
+              <button class="btn btn--ghost" type="button" data-copy="prometheus dashboard">Copy</button>
+            </div>
+            <div class="step__code">
+              <pre><code>prometheus dashboard    <span class="m"># → localhost:7777</span></code></pre>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="label label--accent" style="margin: var(--section-y) 0 var(--space-4)">Or read the code</h3>
+        <div class="steps" data-reveal>
+          <div class="step">
+            <div class="step__head">
+              <span class="step__n">04</span>
+              <span class="step__what">clone, then install into a venv</span>
+              <button class="btn btn--ghost" type="button"
+                data-copy="git clone https://github.com/Engine-User/Prometheus-AI-Agent &amp;&amp; cd Prometheus-AI-Agent&#10;uv venv &amp;&amp; uv pip install -e .&#10;cp .env.example .env">Copy</button>
+            </div>
+            <div class="step__code">
+              <pre><code><span class="c">git clone</span> https://github.com/Engine-User/Prometheus-AI-Agent
+<span class="c">cd</span> Prometheus-AI-Agent
+<span class="c">uv venv</span> &amp;&amp; <span class="c">uv pip install</span> -e .
+<span class="c">cp</span> .env.example .env    <span class="m"># pick a provider, paste ONE key</span></code></pre>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__head">
+              <span class="step__n">05</span>
+              <span class="step__what">run it from the checkout</span>
+              <button class="btn btn--ghost" type="button" data-copy="uv run prometheus dashboard">Copy</button>
+            </div>
+            <div class="step__code">
+              <pre><code><span class="c">uv run</span> prometheus
+<span class="c">uv run</span> prometheus dashboard</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PROVIDERS ────────────────────────────────────────────────────── -->
+    <section class="section section--rule">
+      <div class="shell">
+        <p class="eyebrow label">Use the model you already pay for</p>
+        <h2 class="h2">One key. Ten providers.</h2>
+        <p class="prose" style="margin-top:var(--space-4); margin-bottom:var(--space-6)">
+          Set <code style="font-family:var(--face-mono); color:var(--accent-fg)">PROMETHEUS_PROVIDER</code>
+          and paste the key. One dialect in the loop; a ~60-line adapter handles the rest.
+        </p>
+        <div class="providers" data-reveal>
+          <span class="chip"><img src="assets/logos/anthropic.svg" alt="" width="16" height="16">Anthropic</span>
+          <span class="chip"><img src="assets/logos/openai.svg" alt="" width="16" height="16">OpenAI</span>
+          <span class="chip"><img src="assets/logos/gemini.svg" alt="" width="16" height="16">Gemini</span>
+          <span class="chip"><img src="assets/logos/deepseek.svg" alt="" width="16" height="16">DeepSeek</span>
+          <span class="chip"><img src="assets/logos/minimax.svg" alt="" width="16" height="16">MiniMax</span>
+          <span class="chip"><img src="assets/logos/kimi.svg" alt="" width="16" height="16">Kimi</span>
+          <span class="chip"><img src="assets/logos/glm.svg" alt="" width="16" height="16">GLM</span>
+          <span class="chip"><img src="assets/logos/openrouter.svg" alt="" width="16" height="16">OpenRouter</span>
+          <span class="chip"><img src="assets/logos/opencode_zen.svg" alt="" width="16" height="16">OpenCode Zen</span>
+          <span class="chip"><img src="assets/logos/opencode_go.svg" alt="" width="16" height="16">OpenCode Go</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── DOCS ─────────────────────────────────────────────────────────── -->
+    <section class="section section--rule">
+      <div class="shell">
+        <p class="eyebrow label">Docs, in the order to read them</p>
+        <h2 class="h2">New here? Start at the top.</h2>
+        <nav class="docs" style="margin-top:var(--space-8)" aria-label="Documentation">
+          <a class="doc" href="https://github.com/Engine-User/Prometheus-AI-Agent/blob/main/docs/getting-started.md"
+            rel="noopener">
+            <span>
+              <span class="doc__name">Getting started</span>
+              <span class="doc__for">Installing, the first run, connecting Prometheus Memory — with a check at the end
+                of every step.</span>
+            </span>
+            <span class="doc__go" aria-hidden="true">→</span>
+          </a>
+          <a class="doc" href="https://github.com/Engine-User/Prometheus-AI-Agent/blob/main/docs/tour.md"
+            rel="noopener">
+            <span>
+              <span class="doc__name">The tour</span>
+              <span class="doc__for">The dashboard, things to try, the loop itself, graph workflows and skills.</span>
+            </span>
+            <span class="doc__go" aria-hidden="true">→</span>
+          </a>
+          <a class="doc" href="https://github.com/Engine-User/Prometheus-AI-Agent/blob/main/docs/architecture.md"
+            rel="noopener">
+            <span>
+              <span class="doc__name">Architecture</span>
+              <span class="doc__for">Every box on the whiteboard, and the file behind it.</span>
+            </span>
+            <span class="doc__go" aria-hidden="true">→</span>
+          </a>
+          <a class="doc" href="https://github.com/Engine-User/Prometheus-AI-Agent/blob/main/docs/evals.md"
+            rel="noopener">
+            <span>
+              <span class="doc__name">Evals &amp; tracing</span>
+              <span class="doc__for">The two kinds of eval, the Docker tier, the release gate, traces and spend.</span>
+            </span>
+            <span class="doc__go" aria-hidden="true">→</span>
+          </a>
+          <a class="doc" href="https://github.com/Engine-User/Prometheus-AI-Agent/blob/main/docs/roadmap.md"
+            rel="noopener">
+            <span>
+              <span class="doc__name">Roadmap</span>
+              <span class="doc__for">What is live, what is still a skeleton, and the upgrade paths.</span>
+            </span>
+            <span class="doc__go" aria-hidden="true">→</span>
+          </a>
+        </nav>
+      </div>
+    </section>
+  </main>
+
+  <!-- ── CONTACT ───────────────────────────────────────────────────────── -->
+  <footer class="foot">
+    <div class="shell">
+      <div class="foot__grid">
+        <div>
+          <h2 class="foot__title">This is a codebase you own.</h2>
+          <p class="foot__note">
+            The loop, the memory schema, the gate and the eval harness are all
+            yours to read and change. No enterprise lock-in, no data leakages.
+          </p>
+        </div>
+
+        <div class="foot__col">
+          <span class="label">Contact</span>
+          <div class="foot__list">
+            <a href="https://github.com/Engine-User/Prometheus-AI-Agent" rel="noopener">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" />
+              </svg>
+              Engine-User/Prometheus-AI-Agent
+            </a>
+            <a href="mailto:engineerbigfan@gmail.com">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+                <rect x="1.5" y="3.5" width="13" height="9" rx="1" />
+                <path d="m1.8 4.4 6.2 4.3 6.2-4.3" />
+              </svg>
+              engineerbigfan@gmail.com
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="foot__rule">
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/packets.js" defer></script>
+  <script src="js/site.js" defer></script>
+</body>
+
+</html>

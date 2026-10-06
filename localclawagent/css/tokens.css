@@ -1,0 +1,282 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   THE TOKEN LAYER for the Prometheus landing page.
+
+   Every colour, length and duration on this site is declared here and nowhere
+   else. The values are not invented: they are the DARK block of
+   agent-main/prometheus/ops/static/design/tokens.css, copied at the values that
+   block settled after they were measured against #0A0A0B. #0A0A0B is this
+   site's ground for the same reason it is the dashboard's — a product page that
+   is not the colour of its product is a poster for it.
+
+   ONE DEVIATION, and it is deliberate. The source system rules that
+   box-shadow never appears: separation is done with rules, a card gets a
+   border, and a shadow is not how anything is told apart. That rule is kept
+   here for separation. What is added below is a separate thing it does not
+   cover — MATERIAL, which is how a surface is lit, not how it is ranked.
+
+   The distinction is the whole reason this page can look dimensional without
+   breaking the house style:
+
+     elevation  "which of these two things is in front"     → a hairline rule
+     material   "where does the light fall on this surface"  → a gradient + inset
+
+   A lifted card here has a border and no shadow, exactly as the product
+   specifies. The android in the hero is not a lifted card — it is a machined
+   object, and a machined object has a top edge that catches the light and a
+   bottom edge that does not. Nothing in the card system is allowed to reach
+   into --material-* to get that for free.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: dark;
+
+  /* ── colour ──────────────────────────────────────────────────────────────
+     The dark block, verbatim. --text-muted lands at 8.56:1 and --text-faint
+     at 4.59:1 on this ground; the twelve-pixel mono labels this page is full
+     of are text, not large text, so they are held to the 4.5:1 floor and the
+     floor is why --text-faint is this light rather than a nicer-looking grey.
+     ──────────────────────────────────────────────────────────────────────── */
+  --surface-bg: #0a0a0b;
+  --text-ink: #d7dbde;
+
+  --surface-paper: color-mix(in srgb, var(--text-ink) 4%, var(--surface-bg));
+  --surface-raised: color-mix(in srgb, var(--text-ink) 8%, var(--surface-bg));
+  --surface-sunk: color-mix(in srgb, var(--text-ink) 12%, var(--surface-bg));
+
+  --rule: color-mix(in srgb, var(--text-ink) 19%, transparent);
+  --rule-hard: color-mix(in srgb, var(--text-ink) 42%, transparent);
+
+  --text-muted: color-mix(in srgb, var(--text-ink) 82%, var(--surface-bg));
+  --text-faint: color-mix(in srgb, var(--text-ink) 62%, var(--surface-bg));
+
+  --accent: #22d3ee;      /* neon cyan — fill, borders, focus ring */
+  --accent-fg: #22d3ee;   /* the same hue read as text — 10.9:1 */
+  --accent-hover: #67e8f9;
+  --accent-active: #0fb8ce;
+  --accent-ink: #06181c;  /* ink placed ON a cyan fill */
+
+  --info: #60a5fa;        /* neon blue — 7.8:1 */
+  --ok: #4ade80;          /* neon green — 11.4:1 */
+  --warn: #fbbf24;        /* amber: a warning is its own role, not "info" */
+  --bad: #f87171;         /* neon red — 7.2:1 */
+
+  --scrollbar-thumb: color-mix(in srgb, var(--text-ink) 25%, transparent);
+
+  /* ── material · machined metal ───────────────────────────────────────────
+     The android's shell. Three stacked stops, top-lit: a near-black crown, a
+     graphite body, and a floor darker than the body so the panel has a bottom
+     edge to lose light at. Paired with --material-lip, which is the single
+     hairline of light along the top edge — the specular. Drop the lip and the
+     gradient still reads as a flat rectangle; that one pixel is what makes it
+     read as a plate with a thickness.
+
+     The stops are derived from --text-ink so the metal belongs to the palette
+     and cannot drift away from it. ─────────────────────────────────────────── */
+  /* These three were 20 / 11 / 4 and the whole figure read flat. The cause is
+     not the spread — it is that at 11% of a light ink over #0A0A0B the plate is
+     already at #141416, so brightness(0.78) and brightness(1.24) both land on
+     near-black and the --lit lighting rig has nothing to light. A multiplier
+     can only separate two values that differ. In real graphite the shadow side
+     is visibly darker than the lit side, which is the only reason the eye reads
+     a 3D solid rather than a shape with a gradient on it. */
+  --metal-crown: color-mix(in srgb, var(--text-ink) 30%, var(--surface-bg));
+  --metal-body: color-mix(in srgb, var(--text-ink) 17%, var(--surface-bg));
+  --metal-floor: color-mix(in srgb, var(--text-ink) 7%, var(--surface-bg));
+  --material-metal: linear-gradient(
+    178deg,
+    var(--metal-crown) 0%,
+    var(--metal-body) 44%,
+    var(--metal-floor) 100%
+  );
+
+  /* Ambient occlusion under a raised edge, and the specular lip on it. Both
+     inset, both hairline, both the width of the rule. */
+  --material-lip: inset 0 1px 0 color-mix(in srgb, var(--text-ink) 24%, transparent);
+  --material-occlude: inset 0 -1px 0 rgb(0 0 0 / 0.72);
+
+  /* Contact shadow. This one is NOT inset and NOT a card elevation — it is the
+     dark an object drops onto a floor it is standing above. Only the hero rig
+     and the pillar plinths are allowed to use it. */
+  --material-contact: 0 24px 48px -24px rgb(0 0 0 / 0.95);
+
+  /* ── material · emissive seam ───────────────────────────────────────────
+     A gap between two plates, with light coming out of it. Three parts: the
+     hairline that is the gap itself, a tight bloom around it, and a spill
+     onto the metal behind. --emissive-rest is the unlit state — a seam seen
+     with the machine off — which is what the hero sits at until the first
+     packet arrives, so the ignition is a state change rather than decoration
+     that was already on.
+
+     Intensity is a token because the seam appears at three strengths on this
+     page (rest / live / hover) and writing the triple three times is how three
+     strengths turn into three unrelated looks. ─────────────────────────────── */
+  --emissive-rest: 0 0 0 1px color-mix(in srgb, var(--accent) 34%, transparent);
+  --emissive-live: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 0 14px -2px color-mix(in srgb, var(--accent) 45%, transparent),
+    inset 0 0 10px -4px color-mix(in srgb, var(--accent) 40%, transparent);
+  --emissive-hot: 0 0 0 1px color-mix(in srgb, var(--accent) 90%, transparent),
+    0 0 26px -2px color-mix(in srgb, var(--accent) 70%, transparent),
+    inset 0 0 14px -2px color-mix(in srgb, var(--accent) 60%, transparent);
+
+  /* The four elevations of light the page uses, on a plate standing above its
+     background. Derived so a plate in a dark section and a plate in a lighter
+     one are the same object. */
+  --emissive-lift-1: 0 0 10px -4px color-mix(in srgb, var(--accent) 40%, transparent);
+  --emissive-lift-2: 0 0 22px -6px color-mix(in srgb, var(--accent) 50%, transparent);
+  --emissive-lift-3: 0 0 44px -10px color-mix(in srgb, var(--accent) 60%, transparent);
+
+  /* ── depth ───────────────────────────────────────────────────────────────
+     One perspective for the whole page, on the ancestor of the 3D rig. Every
+     plane inside therefore shares a vanishing point, which is what stops a
+     CSS scene from looking like a stack of separately-rotated cards instead
+     of one object in one room.
+
+     1400px was picked by eye against the rig at 1440 and 390: shallower than
+     900 and the torso's rotateX flattens into a decal; deeper than 1800 and
+     the head separates from the shoulders and the figure stops reading as a
+     body. --depth-exit is the floor the rig lifts to on hover — a centimetre,
+     enough to catch a moving highlight, not enough to look like it floats off. */
+  --depth-perspective: 1400px;
+  --depth-exit: -14px;
+
+  /* ── type ────────────────────────────────────────────────────────────────
+     The source system's three faces, of which this page uses two: --face-sans
+     for everything a person reads, --face-mono for labels, telemetry and every
+     command. --face-display is declared so it resolves to the same fallback
+     chain the product declares, and nothing on this page sets in it.
+
+     --tracking-label at .16em is carried over untouched and it does the work
+     of the whole hacker register on this page: an uppercase mono micro-label
+     is the product's own signature, so the telemetry around the hero reads as
+     this project's voice rather than as a borrowed sci-fi film. */
+  --face-sans: var(--font-instrument-sans), "Helvetica Neue", Arial, sans-serif;
+  --face-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --tracking-label: 0.16em;
+
+  /* The one scale, in a 4px-derived ramp. Display is set in --face-sans at a
+     heavy weight with a NEGATIVE tracking, tightened rather than tracked out:
+     a tracked-out display face is the single most reliable way to make a
+     landing page look generated. */
+  --t-micro: 0.6875rem;   /* 11px — the telemetry label */
+  --t-small: 0.8125rem;   /* 13px — secondary prose, captions */
+  --t-body: 1rem;         /* 16px — reading size */
+  --t-lead: clamp(1.0625rem, 0.4vw + 0.95rem, 1.3125rem);
+  --t-h3: clamp(1.125rem, 0.5vw + 1rem, 1.375rem);
+  --t-h2: clamp(1.625rem, 2.2vw + 1.2rem, 2.75rem);
+  /* Display is capped at 48px, and the cap is the whole reason it is a cap.
+     The headline carries ~40 characters of real copy, which at 92px needed
+     five lines and pushed both CTAs below the fold on a 900px viewport — a
+     landing page whose install button is not visible has failed at the only
+     job it has. 48px puts the same sentence in two lines inside a 500px
+     column and leaves the buttons above the fold. Type size is a layout
+     decision here, not a style preference. */
+  --t-display: clamp(2rem, 3.2vw + 0.8rem, 3rem);
+  --t-h2: clamp(1.5rem, 1.9vw + 1.05rem, 2.25rem);
+
+  /* Display is MONO now, and 40px not 48px.
+     The brief asked for a robotic face and there is exactly one to hand: the
+     project's own JetBrains Mono, already vendored for this site, weight range
+     100-800 so ExtraBold is available, and it is a face built for terminals and
+     code. Using it costs zero bytes and zero requests; importing Orbitron or
+     Exo 2 would cost a network round trip, a licence check and a fallback.
+
+     Mono is 0.6em per character against a grotesque's ~0.5em, so the cap drops
+     from 48px to 40px to keep the same four lines inside the copy column. It
+     also needs MORE leading, not less — a mono line-height of 1.04 crowds the
+     descenders, which is why h1 keeps 1.04 and this sets its own. */
+  --t-display: clamp(1.5rem, 2.6vw + 0.7rem, 2.875rem);
+  --leading-display: 1.14;
+
+  /* ── spacing ─────────────────────────────────────────────────────────────
+     The source system's single 4px base and its five named steps. 1, 5 and 7
+     are deleted there on purpose and they stay deleted here: a retired step
+     left declared is a step someone reaches for. */
+  --spacing: 4px;
+  --space-2: calc(var(--spacing) * 2);
+  --space-3: calc(var(--spacing) * 3);
+  --space-4: calc(var(--spacing) * 4);
+  --space-6: calc(var(--spacing) * 6);
+  --space-8: calc(var(--spacing) * 8);
+  /* Section rhythm and the page's own outer padding are NOT on the 4px grid,
+     and that is a decision rather than an oversight: a 96px section gap at a
+     4px grid is 24 steps, and a page whose rhythm is legible as a list of
+     multiples stops reading as a page. 104 and 88 are off-grid on purpose. */
+  --section-y: clamp(72px, 9vw, 136px);
+  --page-x: clamp(20px, 5vw, 56px);
+  /* 1040, not 1180. At 1180 every prose section below the hero left a 340px
+     gutter with nothing in it, which reads as a layout that failed rather than
+     as one that chose space. The hero needs more than 1040 because a 500px
+     figure and a readable copy column cannot share 928px, so it declares its
+     own width. Deliberate asymmetry, not an inconsistency. */
+  --page-max: 1040px;
+  --hero-max: 1240px;
+
+  /* ── shape ───────────────────────────────────────────────────────────────
+     2px, carried over from the source system, which took it after reading it
+     against 0, 6 and 12 and finding that this product does not round. It is
+     the best decision available for this page and it is the one that makes
+     the hero legible: hard machined corners are what separate a robot's plate
+     from a rounded rectangle with a glow in it. A pill-shaped android is a
+     toy, and this is a tool.
+
+     --shape-circle and --shape-chip are the two exemptions and they are
+     exempt because the shape carries the meaning — a chip is a value lifted
+     out of a sentence, and round ends are what say so. */
+  --radius: 2px;
+  --shape-circle: 50%;
+  --shape-chip: 999px;
+
+  /* ── line and focus ────────────────────────────────────────────────────── */
+  --rule-width: 1px;
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+
+  /* ── technical drawing ────────────────────────────────────────────────
+     Two registration marks — top-left and bottom-right, never all four. A
+     four-corner frame is a certificate; two diagonal corners are how a
+     technical drawing is registered against an origin, and the asymmetry is
+     what stops it reading as a web-section border.
+     14px is roughly the cap height of the 11px mono label, so the mark and the
+     label it sits beside are the same size to the eye. */
+  --mark-len: 14px;
+  --mark-ink: color-mix(in srgb, var(--accent) 46%, transparent);
+  --stroke-empty: rgba(0, 0, 0, 0);
+
+  /* ── motion ──────────────────────────────────────────────────────────────
+     The source system runs one duration at 0.18s and one curve, and it says
+     motion is not a system there. It is a system HERE, because a page that has
+     to read as a machine running needs three named states: a transition fast
+     enough to feel mechanical, a choreographed entrance slow enough to be
+     followed, and a long idle for the things that breathe.
+
+     The idle is deliberately slow. Anything faster stops reading as a machine
+     at rest and starts reading as a loading spinner. */
+  --motion-fast: 0.18s;
+  --motion-base: 0.34s;
+  --motion-idle: 7.5s;
+  --motion-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --motion-enter: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── stack ───────────────────────────────────────────────────────────────
+     Four layers and no more. The hero canvas sits behind the hero's own text
+     and above the page ground, which is the only place two layers have to be
+     ordered against each other; the rest is a page that reads top to bottom. */
+  --z-ground: 0;
+  --z-stage: 1;
+  --z-copy: 2;
+  --z-header: 10;
+
+  /* ── measure ─────────────────────────────────────────────────────────────
+     58ch for left-aligned body, 40ch for centred, carried from the source
+     system for the reason given there. */
+  --measure: 58ch;
+  --measure-narrow: 40ch;
+
+  /* ── control ─────────────────────────────────────────────────────────────
+     The 10/20 pair from the source system, off-grid on purpose there and
+     off-grid here. A target has to be 44px: 10px of it is padding, so the
+     control is 44 tall by declaration rather than by hope. */
+  --control-pad-y: 10px;
+  --control-pad-x: 20px;
+  --control-min-h: 44px;
+}

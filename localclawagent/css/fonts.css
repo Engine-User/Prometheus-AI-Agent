@@ -1,0 +1,36 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   The two faces this site uses, served from assets/fonts. Nothing is fetched
+   from anywhere — no Google Fonts link, no CDN, no @import. The woff2 files are
+   the same Instrument Sans and JetBrains Mono the Prometheus dashboard already
+   ships, copied out of prometheus/ops/static/fonts with their OFL licences
+   beside them. Reusing them is the point: a landing page that set its own face
+   would not look like the product it is selling.
+
+   Playfair Display SC is vendored next to them in the source tree and is NOT
+   copied here. A serif belongs to the product's own landing page, which is
+   gone from the checkout. Nothing here is set in it.
+
+   --font-* names are kept as the source spells them because tokens.css reads
+   these variables, and one rename in one file is cheaper than a rename in two.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url(../assets/fonts/InstrumentSans-var.woff2) format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url(../assets/fonts/JetBrainsMono-var.woff2) format("woff2");
+}
+
+:root {
+  --font-instrument-sans: "Instrument Sans";
+  --font-jetbrains-mono: "JetBrains Mono";
+}

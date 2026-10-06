@@ -1,0 +1,168 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   HEADER and FOOTER — the page's only two pieces of chrome.
+
+   THE HEADER IS GLASS, AND IT IS THE ONLY GLASS ON THE PAGE
+   It is glass for a job: content scrolls underneath it and the wordmark has to
+   stay readable while it does. That job could be done with an opaque bar, and
+   the opaque bar would be a hard edge cutting the hero's floor grid in half.
+   Every other surface on this site is metal, a hole, or a hairline, so there is
+   exactly one place where the material changes and it is where the material
+   change is needed.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.masthead {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: color-mix(in srgb, var(--surface-bg) 72%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  backdrop-filter: blur(14px) saturate(120%);
+  border-bottom: var(--rule-width) solid var(--rule);
+}
+
+.masthead__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  height: 62px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-decoration: none;
+  color: var(--text-ink);
+}
+
+.brand img {
+  width: 26px;
+  height: 26px;
+}
+
+.brand__name {
+  font: 600 var(--t-small) / 1 var(--face-sans);
+  letter-spacing: -0.01em;
+}
+
+.brand__sub {
+  display: block;
+  font: 400 9px / 1 var(--face-mono);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-top: 3px;
+}
+
+.masthead__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.masthead__nav a {
+  font: 500 var(--t-micro) / 1 var(--face-mono);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--motion-fast) var(--motion-ease);
+}
+
+.masthead__nav a:hover {
+  color: var(--accent-fg);
+}
+
+/* ── footer ───────────────────────────────────────────────────────────────────
+   Contact and nothing else. A GitHub link and a gmail address, both real, both
+   reachable, both labelled by what they are rather than by an icon alone. No
+   newsletter field, no social row, no second logo — a page with nothing to
+   subscribe to should not ask. */
+.foot {
+  border-top: var(--rule-width) solid var(--rule);
+  padding-block: var(--section-y) var(--space-8);
+}
+
+.foot__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--space-8);
+  align-items: start;
+}
+
+.foot__title {
+  font-size: var(--t-h2);
+  letter-spacing: -0.035em;
+  margin-bottom: var(--space-4);
+  max-width: 18ch;
+}
+
+.foot__note {
+  color: var(--text-muted);
+  max-width: 44ch;
+  text-wrap: pretty;
+}
+
+.foot__col > .label {
+  display: block;
+  margin-bottom: var(--space-4);
+}
+
+.foot__list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.foot__list a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font: 400 var(--t-small) / 1.4 var(--face-mono);
+  color: var(--text-ink);
+  text-decoration: none;
+  transition: color var(--motion-fast) var(--motion-ease);
+}
+
+.foot__list a:hover {
+  color: var(--accent-fg);
+}
+
+.foot__list svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  color: var(--text-faint);
+}
+
+.foot__list a:hover svg {
+  color: var(--accent-fg);
+}
+
+.foot__rule {
+  margin-top: var(--section-y);
+  padding-top: var(--space-6);
+  border-top: var(--rule-width) solid var(--rule);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-6);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.foot__fine {
+  font: 400 var(--t-micro) / 1.5 var(--face-mono);
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+}
+
+@media (max-width: 700px) {
+  .foot__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
+  }
+
+  .masthead__nav a[data-optional] {
+    display: none;
+  }
+}
